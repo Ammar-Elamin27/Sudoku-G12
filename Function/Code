@@ -1,0 +1,104 @@
+import numpy as np
+
+def load_labeled_sudoku():
+    puzzle = np.array([
+        [7, 2, 0, 0, 0, 1, 0, 0, 0],
+        [8, 0, 0, 0, 0, 0, 0, 1, 9],
+        [4, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 6, 9, 0, 0, 1, 0, 3],
+        [0, 4, 0, 0, 0, 0, 9, 2, 0],
+        [9, 0, 2, 1, 0, 8, 0, 7, 0],
+        [2, 0, 0, 0, 0, 6, 0, 9, 0],
+        [3, 9, 0, 0, 0, 7, 0, 0, 0],
+        [6, 8, 0, 3, 0, 0, 5, 4, 1]
+    ])
+
+    solution = np.array([
+        [7, 2, 3, 8, 9, 1, 6, 5, 4],
+        [8, 6, 5, 2, 3, 4, 7, 1, 9],
+        [4, 1, 9, 7, 6, 5, 8, 3, 2],
+        [5, 7, 6, 9, 4, 2, 1, 8, 3],
+        [1, 4, 8, 6, 7, 3, 9, 2, 5],
+        [9, 3, 2, 1, 5, 8, 4, 7, 6],
+        [2, 5, 1, 4, 8, 6, 3, 9, 7],
+        [3, 9, 4, 5, 1, 7, 2, 6, 8],
+        [6, 8, 7, 3, 2, 9, 5, 4, 1]
+    ])
+
+    return puzzle, solution
+
+def display_board(board):
+    print("   A B C   D E F   G H I")
+    for i in range(9):
+        if i % 3 == 0 and i != 0:
+            print("   ------+-------+------")
+        row_display = f"{i+1}  "
+        for j in range(9):
+            if j % 3 == 0 and j != 0:
+                row_display += "| "
+            cell = board[i][j]
+            row_display += ". " if cell == 0 else f"{cell} "
+        print(row_display)
+
+def input_number(board, number, position):
+    row, col = position
+    board[row][col] = number
+    return board
+
+def play_sudoku():
+    puzzle, solution = load_labeled_sudoku()
+    strikes = 0
+    max_strikes = 5
+
+    while True:
+        display_board(puzzle)
+        print(f"\nStrikes: {strikes}/{max_strikes}")
+
+        try:
+            user_input = input("Enter move (e.g. A1 5): ").upper().strip()
+            if user_input.lower() == "quit":
+                print("Game exited.")
+                break
+
+            if len(user_input) < 4:
+                print("Invalid input. Use format like B3 9.")
+                continue
+
+            col_letter = user_input[0]
+            row_number = int(user_input[1]) - 1
+            number = int(user_input[3])
+
+            col_number = ord(col_letter) - ord('A')
+
+            if not (0 <= row_number < 9 and 0 <= col_number < 9):
+                print("Invalid position.")
+                continue
+
+            if puzzle[row_number][col_number] != 0:
+                print("Cell already filled.")
+                continue
+
+            if solution[row_number][col_number] == number:
+                puzzle = input_number(puzzle, number, (row_number, col_number))
+                print("✅ Correct!")
+            else:
+                strikes += 1
+                print("❌ Wrong!")
+
+        except Exception as e:
+            print("Invalid input. Try again.")
+            continue
+
+        if np.array_equal(puzzle, solution):
+            print("\n🎉 You won! Sudoku complete!")
+            display_board(puzzle)
+            break
+
+        if strikes >= max_strikes:
+            print("\n💥 Game over! Too many mistakes.")
+            print("Here was the correct solution:")
+            display_board(solution)
+            break
+
+# Run the game
+play_sudoku()
